@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin Undangan</title>
+<style>
+:root{--bg:#f3f4f8;--ink:#1b1d2a;--mute:#5d6178;--line:#d9dbe6;--card:#fff;--acc:#a8321f;--accink:#fff;--ok:#1f7a4a}
+@media (prefers-color-scheme:dark){:root{--bg:#14151d;--ink:#eceef7;--mute:#9a9eb5;--line:#2c2f40;--card:#1d1f2b;--acc:#e0644d;--accink:#14151d;--ok:#6fe3a1}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:0 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;flex-wrap:wrap}
+.logo{font-weight:700;font-size:19px;text-decoration:none;color:var(--ink)}
+h1{font-size:22px;margin:8px 0 14px}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:14px;color:var(--mute)}
+input,textarea,select{width:100%;margin-top:4px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{resize:vertical}
+.b{display:inline-block;padding:9px 14px;border-radius:10px;border:1px solid var(--acc);background:var(--acc);color:var(--accink);font:600 15px system-ui,sans-serif;cursor:pointer;text-decoration:none}
+.b.ghost{background:none;color:var(--ink);border-color:var(--line)}
+.b.danger{background:none;color:var(--acc);border-color:var(--acc)}
+.b:disabled{opacity:.5;cursor:wait}
+.mute{color:var(--mute);font-size:14px}
+.link{word-break:break-all;font-size:13px;color:var(--mute)}
+.pill{display:inline-block;font-size:13px;padding:1px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.thumbs div{position:relative}
+.thumbs img{width:84px;height:84px;object-fit:cover;border-radius:10px;display:block}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--acc);color:var(--accink);cursor:pointer;font-weight:700}
+.stat{flex:1 1 120px;text-align:center}.stat b{display:block;font-size:26px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;display:none;z-index:9;max-width:90vw}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<main id="app"><p class="mute" style="padding-top:30px">Memuat...</p></main>
+<div id="toast" role="status"></div>
+
+<script type="module">
+import { db, configured } from "../shared/supabase.js";
+import { THEMES } from "../shared/config.js";
+
+const $ = (s, r = document) => r.querySelector(s);
+const app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let session = null, tt;
+const toast = m => { const t = $("#toast"); t.textContent = m; t.style.display = "block"; clearTimeout(tt); tt = setTimeout(() => t.style.display = "none", 3500) };
+const copy = async t => { try { await navigator.clipboard.writeText(t); toast("Tersalin") } catch { prompt("Salin manual:", t) } };
+const themeName = id => (THEMES.find(t => t.id === id) || { name: id }).name;
+const couple = d => `${(d.bride || {}).nick || "?"} & ${(d.groom || {}).nick || "?"}`;
+const inviteLink = (inv, name = "") => {
+  const u = new URL(`../${inv.theme}/`, location.href);
+  u.search = "?u=" + inv.slug + (name ? "&to=" + encodeURIComponent(name) : "");
+  return u.href;
+};
+const top = () => `<header><a class="logo" href="#/">Admin Undangan</a><button class="b ghost" id="lo">Keluar</button></header>`;
+const bindTop = () => { const b = $("#lo"); if (b) b.onclick = () => db.auth.signOut() };
+
+async function getInv(id) {
+  const { data, error } = await db.from("invitations").select("*").eq("id", id).single();
+  if (error) { toast("Undangan tidak ditemukan."); location.hash = "#/"; return null }
+  return data;
+}
+
+/* ---------- routing ---------- */
+async function route() {
+  if (!session) return viewLogin();
+  const [, page, arg] = location.hash.split("/");
+  if (page === "edit") return viewEdit(arg);
+  if (page === "guests") return viewGuests(arg);
+  if (page === "wishes") return viewWishes(arg);
+  return viewList();
+}
+
+async function boot() {
+  if (!configured) {
+    app.innerHTML = `<div class="card" style="margin-top:30px"><h1>Supabase belum diatur</h1><p>Buka <code>shared/config.js</code>, isi <code>SUPABASE_URL</code> dan <code>SUPABASE_ANON_KEY</code>, lalu muat ulang halaman ini.</p></div>`;
+    return;
+  }
+  if (!db) { app.innerHTML = `<div class="card" style="margin-top:30px"><h1>Gagal memuat Supabase</h1><p>Periksa koneksi internet, lalu muat ulang.</p></div>`; return }
+  const { data } = await db.auth.getSession();
+  session = data.session;
+  db.auth.onAuthStateChange((ev, s) => { session = s; if (ev === "SIGNED_OUT") route() });
+  addEventListener("hashchange", route);
+  route();
+}
+
+/* ---------- login ---------- */
+function viewLogin() {
+  app.innerHTML = `<div class="card" style="max-width:380px;margin:60px auto"><h1>Masuk admin</h1>
+  <form id="f"><label>Email<input id="em" type="email" autocomplete="username" required></label>
+  <label style="margin-top:10px">Kata sandi<input id="pw" type="password" autocomplete="current-password" required></label>
+  <p id="er" class="mute" style="color:var(--acc);min-height:1.4em"></p><button class="b" id="go" style="width:100%">Masuk</button></form></div>`;
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); $("#go").disabled = true;
+    const { data, error } = await db.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
+    if (error) { $("#er").textContent = "Email atau kata sandi salah."; $("#go").disabled = false; return }
+    session = data.session; route();
+  };
+}
+
+/* ---------- daftar undangan ---------- */
+async function viewList() {
+  app.innerHTML = top() + `<p class="mute">Memuat...</p>`; bindTop();
+  const { data, error } = await db.from("invitations").select("*").order("created_at", { ascending: false });
+  if (error) { toast("Gagal memuat: " + error.message); return }
+  app.innerHTML = top() + `<div class="row between"><h1>Undangan (${data.length})</h1><a class="b" href="#/edit/new">Buat undangan</a></div>` +
+    (data.length ? data.map(i => `<div class="card"><div class="row between"><h2>${esc(couple(i.data))}</h2><span class="pill">${esc(themeName(i.theme))}</span></div>
+      <div class="link">${esc(inviteLink(i))}</div>
+      <div class="row" style="margin-top:12px">
+        <a class="b ghost" target="_blank" rel="noopener" href="${esc(inviteLink(i))}">Buka</a>
+        <button class="b ghost" data-copy="${esc(inviteLink(i))}">Salin link</button>
+        <a class="b ghost" href="#/guests/${i.id}">Link tamu</a>
+        <a class="b ghost" href="#/wishes/${i.id}">Ucapan &amp; RSVP</a>
+        <a class="b ghost" href="#/edit/${i.id}">Edit</a>
+        <button class="b danger" data-del="${i.id}">Hapus</button></div></div>`).join("")
+      : `<div class="card"><p>Belum ada undangan. Tekan <b>Buat undangan</b> untuk memulai.</p></div>`);
+  bindTop();
+  app.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));
+  app.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (!confirm("Hapus undangan ini beserta semua ucapan dan RSVP-nya? Tindakan ini tidak bisa dibatalkan.")) return;
+    const { error } = await db.from("invitations").delete().eq("id", b.dataset.del);
+    if (error) return toast("Gagal menghapus: " + error.message);
+    toast("Undangan dihapus"); viewList();
+  });
+}
+
+/* ---------- foto ---------- */
+async function shrink(file, max = 1400, q = .82) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, "image/jpeg", q));
+}
+async function upload(file) {
+  const blob = await shrink(file);
+  const path = `${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const { error } = await db.storage.from("invitation-media").upload(path, blob, { contentType: "image/jpeg", cacheControl: "31536000" });
+  if (error) throw error;
+  return db.storage.from("invitation-media").getPublicUrl(path).data.publicUrl;
+}
+
+/* ---------- buat / edit ---------- */
+async function viewEdit(id) {
+  const isNew = !id || id === "new";
+  let inv = { slug: "", theme: THEMES[0].id, data: {} };
+  if (!isNew) { inv = await getInv(id); if (!inv) return }
+  const D = inv.data || {}, b = D.bride || {}, g = D.groom || {}, bk = D.bank || {};
+  const e0 = (D.events || [])[0] || { title: "Akad nikah" }, e1 = (D.events || [])[1] || { title: "Resepsi" };
+  let gallery = [...(D.gallery || [])], qris = D.qris || "";
+  const f = (l, i, v = "", ph = "", t = "text") => `<label>${l}<input id="${i}" type="${t}" value="${esc(v)}" placeholder="${esc(ph)}"></label>`;
+  const ev = (n, e) => `<div class="card"><h2>${n}</h2><div class="grid">${f("Nama acara", n + "t", e.title)}${f("Tanggal", n + "d", e.date, "Sabtu, 20 Desember 2026")}${f("Jam", n + "j", e.time, "08.00 WIB")}${f("Tempat", n + "p", e.place, "Masjid Al-Ikhlas")}</div>${f("Link Google Maps (opsional)", n + "m", e.map, "https://maps.app.goo.gl/...", "url")}</div>`;
+
+  app.innerHTML = top() + `<h1>${isNew ? "Buat undangan" : "Edit undangan"}</h1>
+  <div class="card"><div class="grid">
+    ${f("Kode undangan (slug)", "slug", inv.slug, "aisyah-rizky")}
+    <label>Tema<select id="theme">${THEMES.map(t => `<option value="${t.id}" ${t.id === inv.theme ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>
+  </div><p class="mute" style="margin:8px 0 0">Slug hanya huruf kecil, angka, dan tanda minus (3 sampai 40 karakter). Slug menjadi bagian link undangan.</p></div>
+  <div class="card"><h2>Mempelai wanita</h2><div class="grid">${f("Nama lengkap", "bn", b.name)}${f("Nama panggilan", "bk", b.nick)}</div>${f("Orang tua", "bp", b.parents, "Putri Bpk. ... & Ibu ...")}</div>
+  <div class="card"><h2>Mempelai pria</h2><div class="grid">${f("Nama lengkap", "gn", g.name)}${f("Nama panggilan", "gk", g.nick)}</div>${f("Orang tua", "gp", g.parents, "Putra Bpk. ... & Ibu ...")}</div>
+  ${ev("a", e0)}${ev("r", e1)}
+  <p class="mute">Kosongkan nama acara atau tempat untuk menghilangkan acara tersebut.</p>
+  <div class="card"><h2>Kata sambutan (opsional)</h2><textarea id="msg" rows="3" placeholder="Kosongkan untuk memakai kalimat bawaan tema">${esc(D.message)}</textarea></div>
+  <div class="card"><h2>Amplop digital</h2><div class="grid">${f("Bank / e-wallet", "bb", bk.name, "BCA")}${f("Nomor rekening", "bnum", bk.number)}</div>${f("Atas nama", "bh", bk.holder)}
+    <label style="margin-top:10px">Gambar QRIS (opsional)<input id="qf" type="file" accept="image/*"></label><div class="thumbs" id="qp"></div></div>
+  <div class="card"><h2>Galeri foto</h2><label>Tambah foto (boleh pilih beberapa)<input id="gf" type="file" accept="image/*" multiple></label><p class="mute" id="gs" style="margin:6px 0 0"></p><div class="thumbs" id="gp2"></div></div>
+  <div class="row"><button class="b" id="save">Simpan</button><a class="b ghost" href="#/">Batal</a></div>`;
+  bindTop();
+
+  const paintMedia = () => {
+    $("#gp2").innerHTML = gallery.map((u, i) => `<div><img src="${esc(u)}" alt="Foto ${i + 1}"><button data-g="${i}" aria-label="Hapus foto">×</button></div>`).join("");
+    $("#qp").innerHTML = qris ? `<div><img src="${esc(qris)}" alt="QRIS"><button data-q aria-label="Hapus QRIS">×</button></div>` : "";
+    app.querySelectorAll("[data-g]").forEach(x => x.onclick = () => { gallery.splice(+x.dataset.g, 1); paintMedia() });
+    app.querySelectorAll("[data-q]").forEach(x => x.onclick = () => { qris = ""; paintMedia() });
+  };
+  paintMedia();
+  $("#gf").onchange = async e => {
+    const files = [...e.target.files]; let n = 0;
+    for (const file of files) {
+      $("#gs").textContent = `Mengunggah ${++n} dari ${files.length}...`;
+      try { gallery.push(await upload(file)); paintMedia() } catch (err) { toast("Gagal mengunggah " + file.name + ": " + (err.message || err)) }
+    }
+    $("#gs").textContent = ""; e.target.value = "";
+  };
+  $("#qf").onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try { qris = await upload(file); paintMedia() } catch (err) { toast("Gagal mengunggah: " + (err.message || err)) }
+    e.target.value = "";
+  };
+
+  $("#save").onclick = async () => {
+    const v = k => $("#" + k).value.trim();
+    const slug = v("slug").toLowerCase();
+    if (!/^[a-z0-9-]{3,40}$/.test(slug)) return toast("Slug: 3 sampai 40 karakter, hanya huruf kecil, angka, dan minus.");
+    if (!v("bk") || !v("gk")) return toast("Isi nama panggilan kedua mempelai.");
+    const ev1 = p => ({ title: v(p + "t"), date: v(p + "d"), time: v(p + "j"), place: v(p + "p"), map: v(p + "m") });
+    const data = {
+      bride: { name: v("bn"), nick: v("bk"), parents: v("bp") },
+      groom: { name: v("gn"), nick: v("gk"), parents: v("gp") },
+      events: [ev1("a"), ev1("r")].filter(e => e.title && e.place),
+      message: v("msg"),
+      bank: { name: v("bb"), number: v("bnum"), holder: v("bh") },
+      qris, gallery
+    };
+    $("#save").disabled = true;
+    const row = { slug, theme: $("#theme").value, data };
+    const { error } = isNew ? await db.from("invitations").insert(row) : await db.from("invitations").update(row).eq("id", id);
+    if (error) {
+      $("#save").disabled = false;
+      return toast(error.code === "23505" ? "Slug sudah dipakai. Pilih yang lain." : "Gagal menyimpan: " + error.message);
+    }
+    toast("Tersimpan"); location.hash = "#/";
+  };
+}
+
+/* ---------- link tamu ---------- */
+const DEFAULT_TPL = "Assalamualaikum {nama},\n\nKami mengundang Anda ke pernikahan {pasangan}. Silakan buka undangan lewat link berikut:\n{link}\n\nTerima kasih.";
+const phone = p => { p = p.replace(/\D/g, ""); if (!p) return ""; if (p.startsWith("0")) return "62" + p.slice(1); if (p.startsWith("8")) return "62" + p; return p };
+
+async function viewGuests(id) {
+  const inv = await getInv(id); if (!inv) return;
+  let names = "", tpl = DEFAULT_TPL;
+  try { names = localStorage.getItem("g:" + id) || ""; tpl = localStorage.getItem("t:" + id) || tpl } catch { }
+  app.innerHTML = top() + `<h1>Link tamu: ${esc(couple(inv.data))}</h1>
+  <div class="card"><label>Daftar tamu, satu per baris. Nomor WhatsApp boleh ditambahkan setelah tanda |<textarea id="nm" rows="7" placeholder="Pak Andi|08123456789&#10;Keluarga Bu Sari">${esc(names)}</textarea></label>
+  <label style="margin-top:10px">Pesan WhatsApp. Gunakan {nama}, {pasangan}, dan {link}<textarea id="tp" rows="6">${esc(tpl)}</textarea></label>
+  <div class="row" style="margin-top:12px"><button class="b" id="gen">Buat link</button><a class="b ghost" href="#/">Kembali</a></div></div>
+  <div id="out"></div>`;
+  bindTop();
+  $("#gen").onclick = () => {
+    const nm = $("#nm").value, tp = $("#tp").value;
+    try { localStorage.setItem("g:" + id, nm); localStorage.setItem("t:" + id, tp) } catch { }
+    const rows = nm.split("\n").map(s => s.trim()).filter(Boolean).map(l => {
+      const [n, p = ""] = l.split("|").map(x => x.trim());
+      const link = inviteLink(inv, n);
+      const msg = tp.replaceAll("{nama}", n).replaceAll("{pasangan}", couple(inv.data)).replaceAll("{link}", link);
+      const ph = phone(p);
+      return { n, link, wa: `https://wa.me/${ph}?text=${encodeURIComponent(msg)}` };
+    });
+    if (!rows.length) return toast("Isi daftar tamu dulu.");
+    $("#out").innerHTML = `<div class="card"><div class="row between"><h2>${rows.length} link</h2><button class="b ghost" id="ca">Salin semua</button></div>
+      <table>${rows.map((r, i) => `<tr><td><b>${esc(r.n)}</b><div class="link">${esc(r.link)}</div></td><td style="white-space:nowrap"><button class="b ghost" data-c="${i}">Salin</button> <a class="b" target="_blank" rel="noopener" href="${esc(r.wa)}">WhatsApp</a></td></tr>`).join("")}</table></div>`;
+    $("#ca").onclick = () => copy(rows.map(r => r.n + "\t" + r.link).join("\n"));
+    app.querySelectorAll("[data-c]").forEach(b => b.onclick = () => copy(rows[+b.dataset.c].link));
+  };
+  if (names.trim()) $("#gen").click();
+}
+
+/* ---------- ucapan & RSVP ---------- */
+async function viewWishes(id) {
+  const inv = await getInv(id); if (!inv) return;
+  const { data, error } = await db.from("wishes").select("*").eq("invitation_id", id).order("created_at", { ascending: false });
+  if (error) return toast("Gagal memuat: " + error.message);
+  const sum = k => data.filter(w => w.attending === k);
+  const hadir = sum("hadir"), label = { hadir: "Hadir", tidak: "Berhalangan", ragu: "Belum pasti" };
+  app.innerHTML = top() + `<h1>Ucapan &amp; RSVP: ${esc(couple(inv.data))}</h1>
+  <div class="row" style="margin-bottom:14px"><div class="card stat"><b>${hadir.length}</b>konfirmasi hadir</div><div class="card stat"><b>${hadir.reduce((a, w) => a + w.guests, 0)}</b>orang hadir</div><div class="card stat"><b>${sum("tidak").length}</b>berhalangan</div><div class="card stat"><b>${data.length}</b>total respons</div></div>
+  <div class="row" style="margin-bottom:14px"><button class="b ghost" id="csv">Unduh CSV</button><a class="b ghost" href="#/">Kembali</a></div>
+  <div class="card" style="overflow-x:auto">${data.length ? `<table><tr><th>Nama</th><th>Status</th><th>Jml</th><th>Ucapan</th><th></th></tr>${data.map(w => `<tr><td>${esc(w.guest_name)}<div class="mute">${new Date(w.created_at).toLocaleString("id-ID")}</div></td><td>${esc(label[w.attending] || "-")}</td><td>${w.guests}</td><td>${esc(w.message)}</td><td><button class="b danger" data-d="${w.id}">Hapus</button></td></tr>`).join("")}</table>` : `<p class="mute">Belum ada ucapan.</p>`}</div>`;
+  bindTop();
+  app.querySelectorAll("[data-d]").forEach(b => b.onclick = async () => {
+    if (!confirm("Hapus ucapan ini?")) return;
+    const { error } = await db.from("wishes").delete().eq("id", b.dataset.d);
+    if (error) return toast("Gagal menghapus: " + error.message);
+    viewWishes(id);
+  });
+  $("#csv").onclick = () => {
+    const cell = s => { s = String(s ?? ""); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"' };
+    const csv = ["Nama,Status,Jumlah,Ucapan,Waktu", ...data.map(w => [w.guest_name, label[w.attending] || "", w.guests, w.message, w.created_at].map(cell).join(","))].join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" }));
+    a.download = "rsvp-" + inv.slug + ".csv"; a.click();
+  };
+}
+
+boot();
+</script>
+</body>
+</html>
