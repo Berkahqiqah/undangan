@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1a1233">
+<title>Jejak Sirah: Undangan Pernikahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Amiri:wght@400;700&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--sand:#f3e2bd;--gold:#e0a23a;--ink:#2b1a0e;--paper:#fbf1dc;--line:#c98f2d;--p:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;font:17px/1.65 "Hanken Grotesk",system-ui,sans-serif;color:var(--sand);background:#1a1233;overflow-x:hidden}
+body.lock{overflow:hidden}
+h1,h2,h3{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.2}
+.ar{font-family:Amiri,"Traditional Arabic",serif;font-size:24px;line-height:1.9;margin:0 0 8px;text-align:center}
+/* langit dan gurun */
+.sky,.night,.stars,.sun,.moon,.dunes{position:fixed;pointer-events:none;z-index:-1}
+.sky,.night,.stars{inset:0}
+.sky{background:linear-gradient(180deg,#f2b25f 0%,#e98a4d 36%,#a9523f 68%,#4a2745 100%)}
+.night{background:linear-gradient(180deg,#0b0c24 0%,#1a1740 45%,#3a2250 80%,#4a2745 100%);opacity:calc(var(--p)*1.3)}
+.stars{opacity:calc(var(--p)*1.5 - .2)}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+@keyframes tw{50%{opacity:.3}}
+.sun{left:50%;top:calc(12% + var(--p)*38%);width:92px;height:92px;margin-left:-46px;border-radius:50%;background:radial-gradient(circle,#fff3c4,#ffd36b 60%,#ffb23d);box-shadow:0 0 90px #ffc75a;opacity:calc(1 - var(--p)*1.6)}
+.moon{top:11%;right:12%;width:56px;height:56px;border-radius:50%;box-shadow:inset -14px -6px 0 0 #f6efd2;opacity:calc(var(--p)*1.5 - .3)}
+.dunes{left:0;right:0;bottom:0;width:100%;height:26vh}
+/* HUD */
+.hud{position:fixed;top:0;left:0;right:0;z-index:5;padding:calc(10px + env(safe-area-inset-top,0px)) 18px 12px;background:linear-gradient(#150f2ee6,#150f2e00);transition:transform .4s}
+body.lock .hud{transform:translateY(-120%)}
+.hrow{display:flex;justify-content:space-between;font:14px Marcellus,serif;color:var(--sand)}
+.route{position:relative;height:28px;margin:2px 6px 0}
+.route::before{content:"";position:absolute;left:0;right:0;top:17px;border-top:2px dashed #e0a23a99}
+.route i{position:absolute;top:12px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#4a3a5a;border:2px solid var(--gold)}
+.route i.on{background:var(--gold)}
+.camel{position:absolute;top:-1px;left:0;font-size:21px;line-height:1;transform:translateX(-50%) scaleX(-1)}
+/* layout */
+.stage{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:96px 18px 90px}
+.in{width:min(560px,100%);display:flex;flex-direction:column;gap:14px}
+.badge{margin:0 auto;padding:3px 14px;border-radius:99px;background:rgba(24,14,40,.78);text-align:center;font:600 13px "Hanken Grotesk",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.stage h2{text-align:center;font-size:clamp(24px,6vw,32px);color:#fff4d6;text-shadow:0 2px 14px #0008}
+.scroll{margin:0;padding:16px 18px;border-radius:16px;background:rgba(24,14,40,.8);border:1px solid #e0a23a66;color:var(--sand)}
+.scroll p{margin:0}
+.scroll cite{display:block;margin-top:8px;font-size:14px;color:var(--gold);font-style:normal}
+.card{background:var(--paper);color:var(--ink);border-radius:18px;padding:20px;border:2px solid var(--line);box-shadow:0 0 0 5px rgba(201,143,45,.28),0 18px 40px #0006}
+.card h3{font-size:20px;margin-bottom:4px}
+.card p{margin:0 0 8px}
+.card cite{font-size:14px;color:#6b4a1e;font-style:normal}
+.center{text-align:center}
+.btn{display:inline-block;background:var(--gold);color:var(--ink);font:600 16px "Hanken Grotesk",sans-serif;padding:12px 22px;border-radius:12px;border:0;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.6;cursor:wait}
+.kur{align-self:center;background:none;border:2px solid var(--gold);color:var(--sand);font:600 15px "Hanken Grotesk",sans-serif;padding:8px 16px;border-radius:99px;cursor:pointer}
+.kur:disabled{background:var(--gold);color:var(--ink);cursor:default}
+:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.card :focus-visible{outline-color:#12102e}
+/* sampul */
+.arch{width:min(380px,100%);padding:44px 24px 32px;border:2px solid var(--gold);border-radius:190px 190px 22px 22px;background:rgba(24,14,40,.55);text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;box-shadow:0 0 0 6px #e0a23a33}
+.arch .ar{font-size:27px;color:#fff4d6}
+.kick{margin:0;letter-spacing:.2em;text-transform:uppercase;font-size:13px;color:var(--gold)}
+.arch h1{font-size:clamp(34px,10vw,48px);color:#fff4d6}
+.sub{margin:0;font-size:15px}
+.to{background:var(--paper);color:var(--ink);border-radius:14px;padding:10px 16px;width:100%}
+.to small{display:block;color:#6b4a1e}.to b{font:20px Marcellus,serif;font-weight:400;word-break:break-word}
+.fld,.card input:not([type=radio]),.card select,.card textarea{width:100%;margin-top:4px;padding:10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+.to .fld{margin:4px 0 0;text-align:center}
+#stt{margin:0;font-size:14px;min-height:1.2em}
+/* isi */
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.ava{width:68px;height:68px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;font:30px Marcellus,serif;background:#2b1a2e;color:var(--gold);border:3px double var(--gold)}
+.person p{font-size:14px;margin:4px 0 0}
+.and{font:34px Marcellus,serif;color:var(--line)}
+.msg{margin-top:14px!important;text-align:center}
+.ev+.ev{border-top:1px dashed var(--line);margin-top:14px;padding-top:14px}
+.ev .btn{margin-top:4px}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.gi{padding:0;border:0;background:none;border-radius:12px;overflow:hidden;cursor:zoom-in;aspect-ratio:1}
+.gi img{width:100%;height:100%;object-fit:cover;display:block}
+dialog{border:0;padding:0;background:none;max-width:94vw;max-height:90vh}
+dialog::backdrop{background:#000c}
+dialog img{max-width:94vw;max-height:88vh;border-radius:12px;display:block}
+.qr{max-width:100%;border-radius:10px;margin-top:10px}
+form{display:flex;flex-direction:column;gap:12px}
+form label,fieldset legend{font-size:14px;color:#6b4a1e;display:block}
+fieldset{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+fieldset legend{grid-column:1/-1;margin-bottom:2px;float:left;width:100%}
+.seg{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;text-align:center;padding:9px 6px;border:2px solid var(--line);border-radius:10px;font-size:14px;color:var(--ink)}
+.seg input:checked+span{background:var(--gold);font-weight:600}
+.seg input:focus-visible+span{outline:3px solid #12102e}
+#rm{margin:0;font-size:14px;min-height:1.3em}
+.wl{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px;max-height:300px;overflow:auto}
+.wl li{background:#fff;border:1px solid #e3c98f;border-radius:10px;padding:8px 12px;font-size:15px}
+.wl b{display:block}
+.fine{text-align:center;font-size:13px;opacity:.85;margin:0}
+.sig{font:22px Marcellus,serif;margin-top:10px!important}
+/* animasi */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s}
+.rv.in2{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transform:none;transition:none}.stars i{animation:none}.hud{transition:none}}
+</style>
+</head>
+<body class="lock">
+<div class="sky"></div><div class="night"></div><div class="stars" id="stars"></div><div class="sun"></div><div class="moon"></div>
+<svg class="dunes" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 C120 60 240 150 380 100 C520 50 650 140 800 90 L800 200 L0 200Z" fill="#6e3436"/><path d="M0 160 C150 110 280 190 430 150 C570 115 690 180 800 140 L800 200 L0 200Z" fill="#2a1424"/></svg>
+
+<header class="hud" aria-label="Kemajuan perjalanan">
+  <div class="hrow"><span id="hudn"></span><span aria-live="polite">🌴 <span id="kc">0</span>/<span id="kt">5</span></span></div>
+  <div class="route" id="route"><span class="camel" id="camel" aria-hidden="true">🐪</span></div>
+</header>
+
+<main>
+  <section class="stage" id="gate"><div class="arch">
+    <p class="ar" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <p class="kick">Undangan Pernikahan</p>
+    <h1 id="cpl">Aisyah &amp; Rizky</h1>
+    <p class="sub">Tempuh perjalanan singkat di padang pasir ini, singgah di lima pos hikmah, lalu tiba di hari bahagia kami.</p>
+    <div class="to"><small>Kepada Yth.</small><b id="gto"></b><input class="fld" id="gn" placeholder="Tulis namamu" maxlength="60" hidden aria-label="Nama tamu"></div>
+    <p id="stt" role="status"></p>
+    <button class="btn" id="go">Mulai perjalanan</button>
+  </div></section>
+  <div id="stages"></div>
+</main>
+<dialog id="lb"><img alt="Foto diperbesar"></dialog>
+<noscript><p style="padding:20px">Undangan ini membutuhkan JavaScript.</p></noscript>
+
+<script type="module">
+import {slug,guestParam,loadInvite,getWishes,sendWish} from "../shared/supabase.js";
+
+const DEMO={bride:{name:"Aisyah Nurfadilah",nick:"Aisyah",parents:"Putri Bpk. Hamid & Ibu Rina"},groom:{name:"Muhammad Rizky",nick:"Rizky",parents:"Putra Bpk. Ahmad & Ibu Sari"},events:[{title:"Akad nikah",date:"Sabtu, 20 Desember 2026",time:"08.00 WIB",place:"Masjid Al-Ikhlas",map:""},{title:"Resepsi",date:"Sabtu, 20 Desember 2026",time:"11.00 WIB",place:"Gedung Serbaguna",map:""}],gallery:[],bank:{name:"BCA",number:"1234567890",holder:"Muhammad Rizky"},qris:"",message:""};
+
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const su=u=>/^https?:\/\//i.test(u||"")?esc(u):"";
+const LBL={hadir:"Hadir",tidak:"Berhalangan",ragu:"Belum pasti"};
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let D=DEMO,INV=null,guest=guestParam.slice(0,60),got=new Set(),last=0;
+let WS=[{n:"Fatimah",t:"Barakallahu lakuma, semoga sakinah, mawaddah, warahmah."}];
+
+/* Pos perjalanan: hikmah dari sirah dan hadis (diparafrasekan) */
+const POS=[
+ {id:"mem",t:"Dua jiwa yang saling menenangkan",q:"Setelah menerima wahyu pertama, Rasulullah ﷺ pulang dengan gemetar. Khadijah radhiyallahu ’anha menenangkannya dengan keyakinan bahwa Allah tidak akan menghinakan beliau.",s:"Kisah dalam Shahih al-Bukhari, Bab Permulaan Wahyu"},
+ {id:"acr",t:"Hari yang dinanti",q:"Rasulullah ﷺ berpesan kepada Abdurrahman bin Auf yang baru menikah agar mengadakan walimah, walau hanya dengan seekor kambing. Kebahagiaan tidak menunggu kemewahan.",s:"HR. Al-Bukhari dan Muslim"},
+ {id:"gal",t:"Kenangan di sepanjang jalan",q:"“Sebaik-baik kalian adalah yang terbaik terhadap keluarganya, dan aku adalah yang terbaik terhadap keluargaku.”",s:"HR. At-Tirmidzi"},
+ {id:"amp",t:"Saling memberi, saling menyayangi",q:"“Saling memberi hadiahlah kalian, niscaya kalian saling mencintai.”",s:"Al-Adab al-Mufrad, Al-Bukhari"},
+ {id:"rsv",t:"Doa untuk kedua mempelai",ar:"بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",q:"Semoga Allah memberkahimu, melimpahkan berkah atasmu, dan mempersatukan kalian berdua dalam kebaikan.",s:"HR. Abu Dawud dan At-Tirmidzi"}
+];
+
+function body(id){
+ if(id==="mem"){const P=(p={})=>`<div class="person"><div class="ava">${esc((p.nick||p.name||"?").charAt(0).toUpperCase())}</div><h3>${esc(p.name||"")}</h3><p>${esc(p.parents||"")}</p></div>`;
+  return `<div class="pair">${P(D.bride)}<span class="and" aria-hidden="true">&amp;</span>${P(D.groom)}</div><p class="msg center">${D.message?esc(D.message):`Dengan memohon rahmat dan ridha Allah, kami mengundang <b class="gname">${esc(guest)||"Bapak/Ibu/Saudara/i"}</b> untuk hadir dan mendoakan kedua mempelai.`}</p>`}
+ if(id==="acr"){const E=D.events||[];return E.length?E.map(e=>`<div class="ev"><h3>${esc(e.title)}</h3><p>${esc(e.date)}${e.time?" · "+esc(e.time):""}</p><p>${esc(e.place)}</p><a class="btn" target="_blank" rel="noopener" href="${su(e.map)||"https://www.google.com/maps/search/"+encodeURIComponent(e.place||"")}">Buka peta</a></div>`).join(""):"<p>Jadwal acara segera diumumkan.</p>"}
+ if(id==="gal"){const G=D.gallery||[];return G.length?`<div class="gal">${G.map((u,i)=>`<button class="gi" data-src="${su(u)}" aria-label="Perbesar foto ${i+1}"><img src="${su(u)}" alt="Foto mempelai ${i+1}" loading="lazy"></button>`).join("")}</div>`:"<p>Foto akan segera ditambahkan.</p>"}
+ if(id==="amp"){const B=D.bank||{};return (B.number?`<h3>${esc(B.name||"")} ${esc(B.number)}</h3><p>a.n. ${esc(B.holder||"")}</p><button class="btn" id="cp" type="button">Salin nomor</button>`:"")+(D.qris?`<img class="qr" src="${su(D.qris)}" alt="Kode QRIS" loading="lazy">`:"")||"<p>Informasi amplop digital belum tersedia.</p>"}
+ if(id==="rsv")return `<form id="rf" autocomplete="off">
+  <label>Nama<input id="rn" maxlength="60" required value="${esc(guest)}"></label>
+  <fieldset><legend>Konfirmasi kehadiran</legend>
+   <label class="seg"><input type="radio" name="att" value="hadir" checked><span>Hadir</span></label>
+   <label class="seg"><input type="radio" name="att" value="ragu"><span>Belum pasti</span></label>
+   <label class="seg"><input type="radio" name="att" value="tidak"><span>Berhalangan</span></label></fieldset>
+  <label id="jl">Jumlah yang hadir<select id="rj">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join("")}</select></label>
+  <label>Ucapan dan doa<textarea id="wt" rows="3" maxlength="500"></textarea></label>
+  <button class="btn" id="rs" type="submit">Kirim</button><p id="rm" role="status" aria-live="polite"></p></form>
+  <h3 style="margin-top:16px">Ucapan tamu</h3><ul class="wl" id="wl"></ul>`;
+}
+
+function build(){
+ const cp=((D.bride||{}).nick||"")+" & "+((D.groom||{}).nick||"");
+ $("#cpl").textContent=cp;$("#hudn").textContent=cp;document.title="Undangan "+cp;
+ $("#kt").textContent=POS.length;
+ $("#stages").innerHTML=POS.map((p,i)=>`<section class="stage" id="${p.id}" data-stop><div class="in rv">
+  <p class="badge">Pos ${i+1} dari ${POS.length}</p><h2>${p.t}</h2>
+  <blockquote class="scroll">${p.ar?`<p class="ar" lang="ar" dir="rtl">${p.ar}</p>`:""}<p>${p.q}</p><cite>${p.s}</cite></blockquote>
+  <div class="card">${body(p.id)}</div>
+  <button class="kur" type="button" data-k="${p.id}">🌴 Ambil kurma</button></div></section>`).join("")+
+ `<section class="stage" id="fin" data-stop><div class="in rv"><p class="badge">Tiba di tujuan</p><h2>Perjalanan sampai di sini</h2>
+  <div class="card center"><p class="ar" lang="ar" dir="rtl">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُمْ مِنْ أَنْفُسِكُمْ أَزْوَاجًا لِتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً</p>
+  <p>Di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan untukmu dari jenismu sendiri agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.</p><cite>QS. Ar-Rum: 21 (terjemahan ringkas)</cite>
+  <p id="kres" style="margin-top:14px"></p><p>Wassalamu’alaikum warahmatullahi wabarakatuh.</p><p class="sig">${esc(cp)}</p><p><small>beserta keluarga</small></p></div>
+  <p class="fine">Kutipan hadis diparafrasekan dari terjemahan. Silakan rujuk kitab aslinya.</p></div></section>`;
+ updK();bind();
+}
+
+function updK(){const n=got.size,t=POS.length;$("#kc").textContent=n;const r=$("#kres");if(r)r.textContent=n===t?`Lengkap! Kamu membawa semua ${t} kurma sebagai bekal. Semoga barakah menyertaimu.`:`Kamu membawa ${n} dari ${t} kurma. Terima kasih sudah singgah di perjalanan kami.`}
+
+function paintWishes(){const u=$("#wl");if(u)u.innerHTML=WS.length?WS.map(w=>`<li><b>${esc(w.n)}</b>${esc(w.t)}</li>`).join(""):"<li>Jadilah yang pertama mengirim doa.</li>"}
+
+function bind(){
+ $$(".kur").forEach(b=>b.onclick=()=>{got.add(b.dataset.k);b.disabled=true;b.textContent="🌴 Kurma terambil";updK()});
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in2");io.unobserve(e.target)}}),{threshold:.15});
+ $$(".rv").forEach(x=>io.observe(x));
+ $$(".gi").forEach(b=>b.onclick=()=>{$("#lb img").src=b.dataset.src;$("#lb").showModal()});
+ $("#lb").onclick=()=>$("#lb").close();
+ const cp=$("#cp");if(cp)cp.onclick=async()=>{const v=String((D.bank||{}).number||"");try{await navigator.clipboard.writeText(v);cp.textContent="Tersalin"}catch(e){cp.textContent=v}};
+ const f=$("#rf");
+ const sync=()=>{$("#rj").disabled=f.att.value!=="hadir";$("#jl").style.opacity=f.att.value==="hadir"?1:.5};
+ f.addEventListener("change",sync);sync();paintWishes();
+ f.onsubmit=async e=>{e.preventDefault();const m=$("#rm"),btn=$("#rs");
+  if(Date.now()-last<15000){m.textContent="Mohon tunggu sebentar sebelum mengirim lagi.";return}
+  const n=$("#rn").value.trim().slice(0,60),t=$("#wt").value.trim().slice(0,500),a=f.att.value,j=a==="hadir"?+$("#rj").value:1;
+  if(!n){m.textContent="Isi nama terlebih dahulu.";return}
+  btn.disabled=true;
+  if(INV){const r=await sendWish(INV.id,{guest_name:n,message:t,attending:a,guests:j});if(r.error){m.textContent="Gagal mengirim. Coba lagi sebentar.";btn.disabled=false;return}}
+  last=Date.now();if(t)WS.unshift({n:n+" ("+LBL[a]+")",t});paintWishes();$("#wt").value="";btn.disabled=false;
+  m.textContent=INV?`Jazakumullahu khairan, ${n}. Konfirmasi ${LBL[a].toLowerCase()} tercatat.`:"Mode contoh: belum tersimpan ke database."};
+ layout();
+}
+
+/* kemajuan perjalanan */
+let stops=[],max=1;
+function layout(){max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+ stops=$$("[data-stop]").map(s=>Math.min(1,Math.max(0,(s.getBoundingClientRect().top+scrollY)/max)));
+ const r=$("#route");$$("i",r).forEach(x=>x.remove());stops.forEach(f=>{const i=document.createElement("i");i.style.left=(f*100)+"%";r.insertBefore(i,$("#camel"))});tick()}
+function tick(){const p=Math.min(1,Math.max(0,scrollY/max));
+ document.documentElement.style.setProperty("--p",p.toFixed(3));$("#camel").style.left=(p*100)+"%";
+ $$("#route i").forEach((x,k)=>x.classList.toggle("on",p>=stops[k]-.002))}
+addEventListener("scroll",tick,{passive:true});
+addEventListener("resize",()=>{layout()});
+addEventListener("load",layout,true);
+
+/* bintang */
+$("#stars").innerHTML=Array.from({length:55},()=>`<i style="left:${Math.random()*100}%;top:${Math.random()*70}%;animation-delay:${(Math.random()*3).toFixed(1)}s"></i>`).join("");
+
+/* gerbang */
+$("#go").onclick=()=>{const v=$("#gn").hidden?"":$("#gn").value.trim();if(v)guest=v.slice(0,60);
+ $$(".gname").forEach(x=>x.textContent=guest||"Bapak/Ibu/Saudara/i");$("#rn").value=guest;
+ document.body.classList.remove("lock");layout();
+ $("#mem").scrollIntoView({behavior:reduce?"auto":"smooth"})};
+
+async function init(){
+ const st=$("#stt"),go=$("#go");
+ if(guest)$("#gto").textContent=guest;else{$("#gto").textContent="Tamu Undangan";$("#gn").hidden=false;$("#gto").hidden=true}
+ if(slug){go.disabled=true;st.textContent="Memuat undangan...";
+  try{INV=await loadInvite();D=INV.data||{}}catch(e){st.textContent="Undangan tidak ditemukan. Periksa kembali link-nya.";return}
+  try{WS=(await getWishes()).map(w=>({n:w.guest_name+(LBL[w.attending]?" ("+LBL[w.attending]+")":""),t:w.message}))}catch(e){WS=[]}
+  st.textContent="";go.disabled=false}
+ else st.textContent="Mode contoh. Tambahkan ?u=kode-undangan pada link.";
+ build();
+}
+init();
+</script>
+</body>
+</html>
