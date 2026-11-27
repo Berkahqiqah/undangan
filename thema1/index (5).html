@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0d0b2a">
+<title>Kondangan Arkade: Undangan Pernikahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b2a;--pink:#ff3d9a;--cyan:#29e7ff;--yel:#ffd93d;--cream:#fff6d6;--ink:#1b1340;--p:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;font:22px/1.3 VT323,"Courier New",monospace;color:var(--cream);background:var(--bg);overflow-x:hidden}
+body.lock{overflow:hidden}
+h1,h2,h3,.px{font-family:"Press Start 2P",monospace;font-weight:400;margin:0;line-height:1.5}
+/* latar: matahari retro + grid neon */
+.sun,.grid,.stars{position:fixed;pointer-events:none;z-index:-1}
+.stars{inset:0}
+.stars i{position:absolute;width:3px;height:3px;background:#fff;animation:tw 2.4s steps(2) infinite}
+@keyframes tw{50%{opacity:.2}}
+.sun{left:50%;top:calc(14% + var(--p)*30%);width:200px;height:200px;margin-left:-100px;border-radius:50%;background:repeating-linear-gradient(180deg,transparent 0 12px,var(--bg) 12px 16px),linear-gradient(180deg,var(--yel),var(--pink));box-shadow:0 0 80px #ff3d9a88;opacity:.9}
+.grid{left:-50%;right:-50%;bottom:0;height:42vh;background:linear-gradient(#29e7ff55 2px,transparent 2px) 0 0/100% 40px,linear-gradient(90deg,#29e7ff55 2px,transparent 2px) 0 0/60px 100%;transform:perspective(300px) rotateX(58deg);transform-origin:bottom;animation:gr 1.6s linear infinite;-webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
+@keyframes gr{to{background-position:0 40px,0 0}}
+/* HUD */
+.hud{position:fixed;top:0;left:0;right:0;z-index:5;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--bg);border-bottom:4px solid var(--cyan);transition:transform .3s steps(4)}
+body.lock .hud{transform:translateY(-120%)}
+.hrow{display:flex;justify-content:space-between;gap:8px;font:10px "Press Start 2P",monospace;color:var(--yel)}
+.hrow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.route{position:relative;height:26px;margin:6px 8px 0;border:3px solid var(--cyan);background:#1b1340}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0;background:repeating-linear-gradient(90deg,var(--pink) 0 8px,#c92a78 8px 10px)}
+.route i{position:absolute;top:-3px;bottom:-3px;width:4px;margin-left:-2px;background:var(--cyan)}
+.route i.on{background:var(--yel)}
+.hero{position:absolute;top:-8px;left:0;font-size:22px;line-height:1;transform:translateX(-50%)}
+/* layout */
+.stage{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:110px 16px 90px}
+.in{width:min(560px,100%);display:flex;flex-direction:column;gap:16px}
+.badge{align-self:center;padding:8px 12px;background:var(--pink);color:var(--ink);font:10px "Press Start 2P",monospace;box-shadow:4px 4px 0 var(--cyan)}
+.stage h2{text-align:center;font-size:clamp(14px,4.4vw,19px);color:var(--cream);text-shadow:3px 3px 0 var(--pink)}
+.say{margin:0;padding:12px 14px;background:#1b1340;border:3px solid var(--cyan);font-size:23px}
+.say p{margin:0}
+.say cite{display:block;margin-top:6px;font-style:normal;font-size:19px;color:var(--cyan)}
+.card{background:var(--cream);color:var(--ink);border:4px solid var(--ink);padding:18px;box-shadow:8px 8px 0 var(--pink)}
+.card h3{font-size:13px;margin-bottom:6px}
+.card p{margin:0 0 8px}
+.card cite{font-size:19px;color:#5b4a8a;font-style:normal}
+.center{text-align:center}
+.btn{display:inline-block;background:var(--yel);color:var(--ink);font:12px "Press Start 2P",monospace;padding:14px 18px;border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);cursor:pointer;text-decoration:none}
+.btn:active{transform:translate(4px,4px);box-shadow:none}
+.btn:disabled{opacity:.6;cursor:wait}
+.coin{align-self:center;background:none;border:3px solid var(--yel);color:var(--yel);font:10px "Press Start 2P",monospace;padding:10px 14px;cursor:pointer}
+.coin:disabled{background:var(--yel);color:var(--ink);cursor:default}
+:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.card :focus-visible{outline-color:var(--pink)}
+/* sampul */
+.cab{width:min(400px,100%);padding:34px 20px 26px;border:6px solid var(--cyan);background:#150f3a;box-shadow:0 0 0 4px var(--pink),10px 10px 0 4px #000a;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.kick{margin:0;font:10px "Press Start 2P",monospace;color:var(--yel);animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+.cab h1{font-size:clamp(20px,7vw,28px);color:var(--cream);text-shadow:4px 4px 0 var(--pink)}
+.sub{margin:0;font-size:23px}
+.to{background:var(--cream);color:var(--ink);padding:10px 14px;width:100%}
+.to small{display:block;color:#5b4a8a;font-size:19px}.to b{font:12px "Press Start 2P",monospace;font-weight:400;word-break:break-word;line-height:1.6}
+.fld,.card input:not([type=radio]),.card select,.card textarea{width:100%;margin-top:4px;padding:8px 10px;border:3px solid var(--ink);background:#fff;color:var(--ink);font:inherit}
+.to .fld{margin:6px 0 0;text-align:center}
+#stt{margin:0;min-height:1.2em;font-size:19px}
+/* isi */
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center}
+.ava{width:64px;height:64px;margin:0 auto 8px;display:grid;place-items:center;font:22px "Press Start 2P",monospace;background:var(--ink);color:var(--yel);border:4px solid var(--pink)}
+.person h3{font-size:11px}
+.person p{font-size:19px;margin:4px 0 0}
+.and{font:22px "Press Start 2P",monospace;color:var(--pink)}
+.msg{margin-top:14px!important;text-align:center}
+.ev+.ev{border-top:4px dotted var(--ink);margin-top:14px;padding-top:14px}
+.ev .btn{margin-top:6px;font-size:10px;padding:10px 12px}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.gi{padding:0;border:3px solid var(--ink);background:none;overflow:hidden;cursor:zoom-in;aspect-ratio:1}
+.gi img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+dialog{border:0;padding:0;background:none;max-width:94vw;max-height:90vh}
+dialog::backdrop{background:#000c}
+dialog img{max-width:94vw;max-height:88vh;border:4px solid var(--cyan);display:block}
+.qr{max-width:100%;margin-top:10px;border:3px solid var(--ink)}
+form{display:flex;flex-direction:column;gap:12px}
+form label,fieldset legend{font-size:20px;color:#5b4a8a;display:block}
+fieldset{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+fieldset legend{grid-column:1/-1;margin-bottom:2px;float:left;width:100%}
+.seg{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;text-align:center;padding:9px 4px;border:3px solid var(--ink);font-size:19px;color:var(--ink)}
+.seg input:checked+span{background:var(--pink);color:#fff}
+.seg input:focus-visible+span{outline:3px solid var(--ink)}
+#rm{margin:0;min-height:1.3em;font-size:20px}
+.wl{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px;max-height:300px;overflow:auto}
+.wl li{background:#fff;border:3px solid var(--ink);padding:6px 10px}
+.wl b{display:block;font:10px "Press Start 2P",monospace;font-weight:400;line-height:1.6}
+.fine{text-align:center;font-size:18px;opacity:.8;margin:0}
+.sig{font:13px "Press Start 2P",monospace;margin-top:10px!important;line-height:1.6}
+/* animasi: satu momen masuk saja */
+.rv{opacity:0;transition:opacity .5s steps(5)}
+.rv.in2{opacity:1}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transition:none}.stars i,.grid,.kick{animation:none}.hud{transition:none}}
+</style>
+</head>
+<body class="lock">
+<div class="stars" id="stars"></div><div class="sun"></div><div class="grid"></div>
+
+<header class="hud" aria-label="Kemajuan level">
+  <div class="hrow"><span id="hudn"></span><span aria-live="polite">SKOR <span id="kc">0</span>/<span id="kt">5</span></span></div>
+  <div class="route" id="route"><div class="fill" id="fill"></div><span class="hero" id="hero" aria-hidden="true">👾</span></div>
+</header>
+
+<main>
+  <section class="stage" id="gate"><div class="cab">
+    <p class="kick">INSERT COIN</p>
+    <p class="px" style="font-size:10px;color:var(--cyan)">Undangan Pernikahan</p>
+    <h1 id="cpl">Aisyah &amp; Rizky</h1>
+    <p class="sub">Selesaikan lima level singkat, kumpulkan koin, lalu temui kami di hari bahagia.</p>
+    <div class="to"><small>Kepada Yth.</small><b id="gto"></b><input class="fld" id="gn" placeholder="Tulis namamu" maxlength="60" hidden aria-label="Nama tamu"></div>
+    <p id="stt" role="status"></p>
+    <button class="btn" id="go">Mulai main</button>
+  </div></section>
+  <div id="stages"></div>
+</main>
+<dialog id="lb"><img alt="Foto diperbesar"></dialog>
+<noscript><p style="padding:20px">Undangan ini membutuhkan JavaScript.</p></noscript>
+
+<script type="module">
+/* Di repo: pakai ../shared/supabase.js. Tanpa file itu, otomatis jadi mode contoh. */
+let api;
+try{api=await import("../shared/supabase.js")}
+catch(e){api={slug:"",guestParam:new URLSearchParams(location.search).get("to")||"",loadInvite:async()=>({}),getWishes:async()=>[],sendWish:async()=>({})}}
+const {slug,guestParam,loadInvite,getWishes,sendWish}=api;
+
+const DEMO={bride:{name:"Aisyah Nurfadilah",nick:"Aisyah",parents:"Putri Bpk. Hamid & Ibu Rina"},groom:{name:"Muhammad Rizky",nick:"Rizky",parents:"Putra Bpk. Ahmad & Ibu Sari"},events:[{title:"Akad nikah",date:"Sabtu, 20 Desember 2026",time:"08.00 WIB",place:"Masjid Al-Ikhlas",map:""},{title:"Resepsi",date:"Sabtu, 20 Desember 2026",time:"11.00 WIB",place:"Gedung Serbaguna",map:""}],gallery:[],bank:{name:"BCA",number:"1234567890",holder:"Muhammad Rizky"},qris:"",message:""};
+
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const su=u=>/^https?:\/\//i.test(u||"")?esc(u):"";
+const LBL={hadir:"Hadir",tidak:"Berhalangan",ragu:"Belum pasti"};
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let D=DEMO,INV=null,guest=(guestParam||"").slice(0,60),got=new Set(),last=0;
+let WS=[{n:"Fatimah",t:"Selamat menempuh hidup baru, semoga sakinah, mawaddah, warahmah."}];
+
+/* Level permainan. Teks bisa diganti sesuai selera. */
+const POS=[
+ {id:"mem",t:"Player 1 & Player 2",q:"Dua pemain, satu tim. Mereka siap menjalani level terbesar dalam hidup, bersama.",s:"Level 1: Kenalan"},
+ {id:"acr",t:"Misi utama",q:"Tanggal sudah dikunci. Catat jadwal dan lokasinya sebelum lanjut ke level berikutnya.",s:"Level 2: Jadwal acara"},
+ {id:"gal",t:"Bonus stage",q:"Kumpulan momen yang membawa kami sampai di layar ini.",s:"Level 3: Galeri"},
+ {id:"amp",t:"Hadiah tersembunyi",q:"Kehadiran Anda sudah cukup. Jika ingin berbagi kebahagiaan, ini jalurnya.",s:"Level 4: Amplop digital"},
+ {id:"rsv",t:"Konfirmasi pemain",q:"Beri tahu kami apakah Anda ikut bergabung dan tinggalkan ucapan.",s:"Level 5: RSVP"}
+];
+
+function body(id){
+ if(id==="mem"){const P=(p={})=>`<div class="person"><div class="ava">${esc((p.nick||p.name||"?").charAt(0).toUpperCase())}</div><h3>${esc(p.name||"")}</h3><p>${esc(p.parents||"")}</p></div>`;
+  return `<div class="pair">${P(D.bride)}<span class="and" aria-hidden="true">&amp;</span>${P(D.groom)}</div><p class="msg center">${D.message?esc(D.message):`Dengan segala kerendahan hati, kami mengundang <b class="gname">${esc(guest)||"Bapak/Ibu/Saudara/i"}</b> untuk hadir dan memberikan doa restu.`}</p>`}
+ if(id==="acr"){const E=D.events||[];return E.length?E.map(e=>`<div class="ev"><h3>${esc(e.title)}</h3><p>${esc(e.date)}${e.time?" · "+esc(e.time):""}</p><p>${esc(e.place)}</p><a class="btn" target="_blank" rel="noopener" href="${su(e.map)||"https://www.google.com/maps/search/"+encodeURIComponent(e.place||"")}">Buka peta</a></div>`).join(""):"<p>Jadwal acara segera diumumkan.</p>"}
+ if(id==="gal"){const G=D.gallery||[];return G.length?`<div class="gal">${G.map((u,i)=>`<button class="gi" data-src="${su(u)}" aria-label="Perbesar foto ${i+1}"><img src="${su(u)}" alt="Foto mempelai ${i+1}" loading="lazy"></button>`).join("")}</div>`:"<p>Foto akan segera ditambahkan.</p>"}
+ if(id==="amp"){const B=D.bank||{};return (B.number?`<h3>${esc(B.name||"")} ${esc(B.number)}</h3><p>a.n. ${esc(B.holder||"")}</p><button class="btn" id="cp" type="button">Salin nomor</button>`:"")+(D.qris?`<img class="qr" src="${su(D.qris)}" alt="Kode QRIS" loading="lazy">`:"")||"<p>Informasi amplop digital belum tersedia.</p>"}
+ if(id==="rsv")return `<form id="rf" autocomplete="off">
+  <label>Nama<input id="rn" maxlength="60" required value="${esc(guest)}"></label>
+  <fieldset><legend>Konfirmasi kehadiran</legend>
+   <label class="seg"><input type="radio" name="att" value="hadir" checked><span>Hadir</span></label>
+   <label class="seg"><input type="radio" name="att" value="ragu"><span>Belum pasti</span></label>
+   <label class="seg"><input type="radio" name="att" value="tidak"><span>Berhalangan</span></label></fieldset>
+  <label id="jl">Jumlah yang hadir<select id="rj">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join("")}</select></label>
+  <label>Ucapan dan doa<textarea id="wt" rows="3" maxlength="500"></textarea></label>
+  <button class="btn" id="rs" type="submit">Kirim</button><p id="rm" role="status" aria-live="polite"></p></form>
+  <h3 style="margin-top:16px">Ucapan tamu</h3><ul class="wl" id="wl"></ul>`;
+}
+
+function build(){
+ const cp=((D.bride||{}).nick||"")+" & "+((D.groom||{}).nick||"");
+ $("#cpl").textContent=cp;$("#hudn").textContent=cp;document.title="Undangan "+cp;
+ $("#kt").textContent=POS.length;
+ $("#stages").innerHTML=POS.map(p=>`<section class="stage" id="${p.id}" data-stop><div class="in rv">
+  <p class="badge">${p.s}</p><h2>${p.t}</h2>
+  <blockquote class="say"><p>${p.q}</p></blockquote>
+  <div class="card">${body(p.id)}</div>
+  <button class="coin" type="button" data-k="${p.id}">🪙 Ambil koin</button></div></section>`).join("")+
+ `<section class="stage" id="fin" data-stop><div class="in rv"><p class="badge">Game clear</p><h2>Sampai jumpa di hari H</h2>
+  <div class="card center"><p>Terima kasih sudah menyelesaikan perjalanan ini. Doa dan kehadiran Anda adalah hadiah terbesar kami.</p>
+  <p id="kres" style="margin-top:12px"></p><p class="sig">${esc(cp)}</p><p>beserta keluarga</p></div>
+  <p class="fine">Tema Kondangan Arkade</p></div></section>`;
+ updK();bind();
+}
+
+function updK(){const n=got.size,t=POS.length;$("#kc").textContent=n;const r=$("#kres");if(r)r.textContent=n===t?`Skor sempurna! Kamu mengumpulkan semua ${t} koin.`:`Kamu mengumpulkan ${n} dari ${t} koin. Terima kasih sudah mampir.`}
+
+function paintWishes(){const u=$("#wl");if(u)u.innerHTML=WS.length?WS.map(w=>`<li><b>${esc(w.n)}</b>${esc(w.t)}</li>`).join(""):"<li>Jadilah yang pertama mengirim doa.</li>"}
+
+function bind(){
+ $$(".coin").forEach(b=>b.onclick=()=>{got.add(b.dataset.k);b.disabled=true;b.textContent="🪙 Koin terambil";updK()});
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in2");io.unobserve(e.target)}}),{threshold:.15});
+ $$(".rv").forEach(x=>io.observe(x));
+ $$(".gi").forEach(b=>b.onclick=()=>{$("#lb img").src=b.dataset.src;$("#lb").showModal()});
+ $("#lb").onclick=()=>$("#lb").close();
+ const cp=$("#cp");if(cp)cp.onclick=async()=>{const v=String((D.bank||{}).number||"");try{await navigator.clipboard.writeText(v);cp.textContent="Tersalin"}catch(e){cp.textContent=v}};
+ const f=$("#rf");
+ const sync=()=>{$("#rj").disabled=f.att.value!=="hadir";$("#jl").style.opacity=f.att.value==="hadir"?1:.5};
+ f.addEventListener("change",sync);sync();paintWishes();
+ f.onsubmit=async e=>{e.preventDefault();const m=$("#rm"),btn=$("#rs");
+  if(Date.now()-last<15000){m.textContent="Mohon tunggu sebentar sebelum mengirim lagi.";return}
+  const n=$("#rn").value.trim().slice(0,60),t=$("#wt").value.trim().slice(0,500),a=f.att.value,j=a==="hadir"?+$("#rj").value:1;
+  if(!n){m.textContent="Isi nama terlebih dahulu.";return}
+  btn.disabled=true;
+  if(INV){const r=await sendWish(INV.id,{guest_name:n,message:t,attending:a,guests:j});if(r.error){m.textContent="Gagal mengirim. Coba lagi sebentar.";btn.disabled=false;return}}
+  last=Date.now();if(t)WS.unshift({n:n+" ("+LBL[a]+")",t});paintWishes();$("#wt").value="";btn.disabled=false;
+  m.textContent=INV?`Terima kasih, ${n}. Konfirmasi ${LBL[a].toLowerCase()} tercatat.`:"Mode contoh: belum tersimpan ke database."};
+ layout();
+}
+
+/* kemajuan level */
+let stops=[],max=1;
+function layout(){max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+ stops=$$("[data-stop]").map(s=>Math.min(1,Math.max(0,(s.getBoundingClientRect().top+scrollY)/max)));
+ const r=$("#route");$$("i",r).forEach(x=>x.remove());stops.forEach(f=>{const i=document.createElement("i");i.style.left=(f*100)+"%";r.appendChild(i)});tick()}
+function tick(){const p=Math.min(1,Math.max(0,scrollY/max));
+ document.documentElement.style.setProperty("--p",p.toFixed(3));
+ $("#hero").style.left=(p*100)+"%";$("#fill").style.width=(p*100)+"%";
+ $$("#route i").forEach((x,k)=>x.classList.toggle("on",p>=stops[k]-.002))}
+addEventListener("scroll",tick,{passive:true});
+addEventListener("resize",()=>{layout()});
+addEventListener("load",layout,true);
+
+/* bintang */
+$("#stars").innerHTML=Array.from({length:45},()=>`<i style="left:${Math.random()*100}%;top:${Math.random()*55}%;animation-delay:${(Math.random()*2.4).toFixed(1)}s"></i>`).join("");
+
+/* gerbang */
+$("#go").onclick=()=>{const v=$("#gn").hidden?"":$("#gn").value.trim();if(v)guest=v.slice(0,60);
+ $$(".gname").forEach(x=>x.textContent=guest||"Bapak/Ibu/Saudara/i");$("#rn").value=guest;
+ document.body.classList.remove("lock");layout();
+ $("#mem").scrollIntoView({behavior:reduce?"auto":"smooth"})};
+
+async function init(){
+ const st=$("#stt"),go=$("#go");
+ if(guest)$("#gto").textContent=guest;else{$("#gto").textContent="Tamu Undangan";$("#gn").hidden=false;$("#gto").hidden=true}
+ if(slug){go.disabled=true;st.textContent="Memuat undangan...";
+  try{INV=await loadInvite();D=INV.data||{}}catch(e){st.textContent="Undangan tidak ditemukan. Periksa kembali link-nya.";return}
+  try{WS=(await getWishes()).map(w=>({n:w.guest_name+(LBL[w.attending]?" ("+LBL[w.attending]+")":""),t:w.message}))}catch(e){WS=[]}
+  st.textContent="";go.disabled=false}
+ else st.textContent="Mode contoh. Tambahkan ?u=kode-undangan pada link.";
+ build();
+}
+init();
+</script>
+</body>
+</html>
